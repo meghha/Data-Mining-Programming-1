@@ -4,7 +4,16 @@
 import numpy as np
 from numpy.typing import NDArray
 from typing import Any
-
+import utils as u
+import new_utils as nu
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import (
+    ShuffleSplit,
+    cross_validate,
+    KFold,
+)
 # ======================================================================
 
 # I could make Section 2 a subclass of Section 1, which would facilitate code reuse.
@@ -69,8 +78,22 @@ class Section2:
         # return values:
         # Xtrain, ytrain, Xtest, ytest: the data used to fill the `answer`` dictionary
 
-        Xtrain = Xtest = np.zeros([1, 1], dtype="float")
-        ytrain = ytest = np.zeros([1], dtype="int")
+        Xtrain, ytrain, Xtest, ytest = u.prepare_data()
+        Xtrain = nu.scale_data(Xtrain)
+        Xtest = nu.scale_data(Xtest)
+
+        nb_classes_train,nb_classes_test,class_count_train,class_count_test,length_Xtrain,length_Xtest,length_ytrain,length_ytest,max_Xtrain,max_Xtest = nu.eda(Xtrain,Xtest,ytrain,ytest)
+        
+        answer["nb_classes_train"] = nb_classes_train
+        answer["nb_classes_test"] = nb_classes_test
+        answer["class_count_train"] = class_count_train
+        answer["class_count_test"] = class_count_test
+        answer["length_Xtrain"] = length_Xtrain
+        answer["length_Xtest"] = length_Xtest
+        answer["length_ytrain"] = length_ytrain
+        answer["length_ytest"] = length_ytest
+        answer["max_Xtrain"] = max_Xtrain
+        answer["max_Xtest"] = max_Xtest
 
         return answer, Xtrain, ytrain, Xtest, ytest
 
@@ -101,7 +124,50 @@ class Section2:
     ) -> dict[int, dict[str, Any]]:
         """ """
         # Enter your code and fill the `answer`` dictionary
+        Xtrain, ytrain, Xtest, ytest = u.prepare_data()
+        Xtrain = nu.scale_data(Xtrain)
+        Xtest = nu.scale_data(Xtest)
+
+
         answer = {}
+        # 1000
+        ntrain = 1000
+        ntest = 200
+        answer[ntrain] = {}
+        answer[ntrain]["partC"] = nu.part1_partC(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["partD"] = nu.part1_partD(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["partF"] = nu.part1_partF(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["ntrain"] = len(Xtrain[0:ntrain, :])
+        answer[ntrain]["ntest"] = len(Xtest[0:ntest, :])
+        answer[ntrain]["class_count_train"] = nu.value_counts(ytrain[0:ntrain])
+        answer[ntrain]["class_count_test"] = nu.value_counts(ytest[0:ntest])
+
+        # 5000
+        ntrain = 5000
+        ntest = 1000
+
+        answer[ntrain] = {}
+        answer[ntrain]["partC"] = nu.part1_partC(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["partD"] = nu.part1_partD(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["partF"] = nu.part1_partF(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["ntrain"] = len(Xtrain[0:ntrain, :])
+        answer[ntrain]["ntest"] = len(Xtest[0:ntest, :])
+        answer[ntrain]["class_count_train"] = nu.value_counts(ytrain[0:ntrain])
+        answer[ntrain]["class_count_test"] = nu.value_counts(ytest[0:ntest])
+
+        # 10000
+        ntrain = 10000  
+        ntest = 2000
+        answer[ntrain] = {}
+        answer[ntrain]["partC"] = nu.part1_partC(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["partD"] = nu.part1_partD(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["partF"] = nu.part1_partF(self.seed,ntrain,Xtrain,ytrain)
+        answer[ntrain]["ntrain"] = len(Xtrain[0:ntrain, :])
+        answer[ntrain]["ntest"] = len(Xtest[0:ntest, :])
+        answer[ntrain]["class_count_train"] = nu.value_counts(ytrain[0:ntrain])
+        answer[ntrain]["class_count_test"] = nu.value_counts(ytest[0:ntest])
+
+        # the accuracy scores increase as a function of n-train. The highest accuracy is observed for Logistic regression
 
         """
         `answer` is a dictionary with the following keys:
