@@ -131,43 +131,21 @@ class Section2:
 
         answer = {}
         # 1000
-        ntrain = 1000
-        ntest = 200
-        answer[ntrain] = {}
-        answer[ntrain]["partC"] = nu.part1_partC(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["partD"] = nu.part1_partD(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["partF"] = nu.part1_partF(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["ntrain"] = len(Xtrain[0:ntrain, :])
-        answer[ntrain]["ntest"] = len(Xtest[0:ntest, :])
-        answer[ntrain]["class_count_train"] = nu.value_counts(ytrain[0:ntrain])
-        answer[ntrain]["class_count_test"] = nu.value_counts(ytest[0:ntest])
+        for ntrain,ntest in zip(ntrain_list,ntest_list):
+            Xtrain = Xtrain[0:ntrain, :]
+            ytrain = ytrain[0:ntrain]
+            answer[ntrain] = {}
+            answer[ntrain]["partC"] = nu.part1_partC(self.seed,Xtrain,ytrain)
+            answer[ntrain]["partD"] = nu.part1_partD(self.seed,Xtrain,ytrain)
+            answer[ntrain]["partF"] = nu.part1_partF(self.seed,Xtrain,ytrain)
+            answer[ntrain]["ntrain"] = len(Xtrain)
+            answer[ntrain]["ntest"] = len(Xtest)
+            answer[ntrain]["class_count_train"] = nu.value_counts(ytrain[0:ntrain])
+            answer[ntrain]["class_count_test"] = nu.value_counts(ytest[0:ntest])
+        
+        
 
-        # 5000
-        ntrain = 5000
-        ntest = 1000
-
-        answer[ntrain] = {}
-        answer[ntrain]["partC"] = nu.part1_partC(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["partD"] = nu.part1_partD(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["partF"] = nu.part1_partF(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["ntrain"] = len(Xtrain[0:ntrain, :])
-        answer[ntrain]["ntest"] = len(Xtest[0:ntest, :])
-        answer[ntrain]["class_count_train"] = nu.value_counts(ytrain[0:ntrain])
-        answer[ntrain]["class_count_test"] = nu.value_counts(ytest[0:ntest])
-
-        # 10000
-        ntrain = 10000  
-        ntest = 2000
-        answer[ntrain] = {}
-        answer[ntrain]["partC"] = nu.part1_partC(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["partD"] = nu.part1_partD(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["partF"] = nu.part1_partF(self.seed,ntrain,Xtrain,ytrain)
-        answer[ntrain]["ntrain"] = len(Xtrain[0:ntrain, :])
-        answer[ntrain]["ntest"] = len(Xtest[0:ntest, :])
-        answer[ntrain]["class_count_train"] = nu.value_counts(ytrain[0:ntrain])
-        answer[ntrain]["class_count_test"] = nu.value_counts(ytest[0:ntest])
-
-        # the accuracy scores increase as a function of n-train. The highest accuracy is observed for Logistic regression
+        print("The accuracy scores increase as a function of n-train. The highest accuracy is observed for Logistic regression")
 
         """
         `answer` is a dictionary with the following keys:

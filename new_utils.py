@@ -11,8 +11,6 @@
      import new_utils as nu
 """
 
-
-import pickle
 import numpy as np
 import pandas as pd
 from typing import Type, Dict
@@ -80,26 +78,23 @@ def eda(Xtrain,Xtest,ytrain,ytest):
       max_Xtest = np.max(Xtest)
       return nb_classes_train,nb_classes_test,class_count_train,class_count_test,length_Xtrain,length_Xtest,length_ytrain,length_ytest,max_Xtrain,max_Xtest
 
-def part1_partC(random_state,ntrain,Xtrain,ytrain):
+def part1_partC(random_state,Xtrain,ytrain):
   answer = {}
-  Xtrain = Xtrain[0:ntrain, :]
-  ytrain = ytrain[0:ntrain]
   clf = DecisionTreeClassifier(random_state=random_state)
   cv = KFold(n_splits=5)
   metrics = u.train_simple_classifier_with_cv(Xtrain=Xtrain,ytrain=ytrain,clf=clf,cv=cv)
+  scores = scores_(metrics=metrics)
+  answer["scores"] = scores
   answer["clf"] = clf  # the estimator (classifier instance)
   answer["cv"] =  cv # the cross validator instance
   
   # the dictionary with the scores  (a dictionary with
   # keys: 'mean_fit_time', 'std_fit_time', 'mean_accuracy', 'std_accuracy'.
-  scores = scores_(metrics=metrics)
-  answer["scores"] = scores
+  
   return answer
 
-def part1_partD(random_state,ntrain,Xtrain,ytrain):
+def part1_partD(random_state,Xtrain,ytrain):
   answer = {}
-  Xtrain = Xtrain[0:ntrain, :]
-  ytrain = ytrain[0:ntrain]
   clf = DecisionTreeClassifier(random_state=random_state)
   cv = ShuffleSplit(random_state=random_state)
   metrics = u.train_simple_classifier_with_cv(Xtrain=Xtrain,ytrain=ytrain,clf=clf,cv=cv)
@@ -108,14 +103,13 @@ def part1_partD(random_state,ntrain,Xtrain,ytrain):
   scores = scores_(metrics=metrics)
 
   answer = {}
+  answer["scores"] = scores
   answer["clf"] = clf
   answer["cv"] = cv
-  answer["scores"] = scores
+  
   return answer
 
-def part1_partF(random_state,ntrain,Xtrain,ytrain):
-  Xtrain = Xtrain[0:ntrain, :]
-  ytrain = ytrain[0:ntrain]
+def part1_partF(random_state,Xtrain,ytrain):
   clf_LR = LogisticRegression(max_iter=300,random_state=random_state,solver="saga")
   clf_DT = DecisionTreeClassifier(random_state=random_state)
 
