@@ -62,7 +62,7 @@ def gridSearch_(clf,cv,Xtrain,ytrain):
     }
     grid_search = GridSearchCV(estimator=clf, param_grid=param_grid, cv=cv, scoring='accuracy',n_jobs=-1)
     grid_search.fit(Xtrain, ytrain)
-    mean_accuracy_cv = grid_search.best_score_
+    mean_accuracy_cv = grid_search.cv_results_["mean_test_score"].mean()
     return grid_search, grid_search.best_estimator_, mean_accuracy_cv
 
 def eda(Xtrain,Xtest,ytrain,ytest):
@@ -70,8 +70,8 @@ def eda(Xtrain,Xtest,ytrain,ytest):
       nb_classes_test = len(set(ytest))
       class_count_train = pd.DataFrame(ytrain).value_counts()
       class_count_test = pd.DataFrame(ytest).value_counts()
-      length_Xtrain = len(Xtrain)  # Number of samples
-      length_Xtest = len(Xtest)
+      length_Xtrain = Xtrain.shape[0]# Number of samples
+      length_Xtest = Xtest.shape[0]
       length_ytrain = len(ytrain)
       length_ytest = len(ytest)
       max_Xtrain = np.max(Xtrain)
@@ -109,29 +109,38 @@ def part1_partD(random_state,Xtrain,ytrain):
   
   return answer
 
-def part1_partF(random_state,Xtrain,ytrain):
+def part1_partF(random_state,Xtrain,ytrain,Xtest,ytest):
   clf_LR = LogisticRegression(max_iter=300,random_state=random_state,solver="saga")
-  clf_DT = DecisionTreeClassifier(random_state=random_state)
+  # clf_DT = DecisionTreeClassifier(random_state=random_state)
 
   cv = ShuffleSplit(random_state=random_state)
 
-  metrics_DT = u.train_simple_classifier_with_cv(Xtrain=Xtrain,ytrain=ytrain,clf=clf_DT,cv=cv)
+  # metrics_DT = u.train_simple_classifier_with_cv(Xtrain=Xtrain,ytrain=ytrain,clf=clf_DT,cv=cv)
   metrics_LR = u.train_simple_classifier_with_cv(Xtrain=Xtrain,ytrain=ytrain,clf=clf_LR,cv=cv)
+  
 
+  clf_LR.fit(Xtrain,ytrain)
   answer = {}
   # Enter your code, construct the `answer` dictionary, and return it.
 
-  answer["clf_LR"] = clf_LR
-  answer["clf_DT"] = clf_DT
-  answer[cv] = cv
+  answer["clf"] = clf_LR
+  # answer["clf_DT"] = clf_DT
+  answer["cv"] = cv
 
+  ytrain_pred = clf_LR.predict(Xtrain)
+  ytest_pred = clf_LR.predict(Xtest)
 
-  answer["scores_LR"] = scores_(metrics_LR)
-  answer["scores_DT"] = scores_(metrics_DT)
-  answer["model_highest_accuracy"] = "Decision Tree"
+  answer["scores_train_F"] = clf_LR.score(Xtrain,ytrain)
+  answer["scores_test_F"] = clf_LR.score(Xtest,ytest)
+  answer["mean_cv_accuracy"] = scores_(metrics_LR)["mean_accuracy"]
+  answer["conf_mat_train"] = confusion_matrix(ytrain,ytrain_pred)
+  answer["conf_mat_test"] = confusion_matrix(ytest,ytest_pred)
 
-  answer["model_lowest_variance"] = "Random Forest"
-  answer["model_fastest"] = "Decision Tree"
+  # answer["scores_DT"] = scores_(metrics_DT)
+  # answer["model_highest_accuracy"] = np.where(answer["scores_RF"]["mean_accuracy"]>answer["scores_DT"]["mean_accuracy"],"Random-Forest","Decision-Tree")
+  # answer["model_lowest_variance"] = np.where(answer["scores_RF"]["std_accuracy"]>answer["scores_DT"]["std_accuracy"],"Random-Forest","Decision-Tree")
+  # answer["model_fastest"] = np.where(answer["scores_RF"]["mean_fit_time"]>answer["scores_DT"]["mean_fit_time"],"Random-Forest","Decision-Tree")
+
   return answer
 
 def value_counts(y):

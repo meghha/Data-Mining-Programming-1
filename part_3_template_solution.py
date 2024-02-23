@@ -97,12 +97,7 @@ class Section3:
         - "score_train" : the topk accuracy score for the training set
         - "score_test" : the topk accuracy score for the testing set
         """
-        Xtrain, ytrain, Xtest, ytest = u.prepare_data()
-        Xtrain = nu.scale_data(Xtrain)
-        Xtest = nu.scale_data(Xtest)
-        ntrain = 10000
-        Xtrain = Xtrain[0:ntrain, :]
-        ytrain = ytrain[0:ntrain]
+ 
         clf = LogisticRegression(max_iter=300, random_state=42, solver='saga')
         clf.fit(Xtrain, ytrain)
         k_values = [1, 2, 3, 4, 5]
@@ -114,10 +109,10 @@ class Section3:
 
 
         # Plot for training data
-        nu.plot_k_vs_score(train_scores, "Training Data")
+        # nu.plot_k_vs_score(train_scores, "Training Data")
 
         # Plot for testing data
-        nu.plot_k_vs_score(test_scores, "Testing Data")
+        # nu.plot_k_vs_score(test_scores, "Testing Data")
 
         # Return the results
         plot_k_vs_score_train = train_scores
@@ -128,16 +123,16 @@ class Section3:
         answer[3] = {}
         answer[4] = {}
         answer[5] = {}
-        answer[1]["score_train"] = train_scores[0]
-        answer[1]["score_test"] = test_scores[0]
-        answer[2]["score_train"] = train_scores[1]
-        answer[2]["score_test"] = test_scores[1]
-        answer[3]["score_train"] = train_scores[2]
-        answer[3]["score_test"] = test_scores[2]
-        answer[4]["score_train"] = train_scores[3]
-        answer[4]["score_test"] = test_scores[3]
-        answer[5]["score_train"] = train_scores[4]
-        answer[5]["score_test"] = test_scores[4]
+        answer[1]["score_train"] = train_scores[0][1]
+        answer[1]["score_test"] = test_scores[0][1]
+        answer[2]["score_train"] = train_scores[1][1]
+        answer[2]["score_test"] = test_scores[1][1]
+        answer[3]["score_train"] = train_scores[2][1]
+        answer[3]["score_test"] = test_scores[2][1]
+        answer[4]["score_train"] = train_scores[3][1]
+        answer[4]["score_test"] = test_scores[3][1]
+        answer[5]["score_train"] = train_scores[4][1]
+        answer[5]["score_test"] = test_scores[4][1]
         answer["clf"] = clf
         answer["plot_k_vs_score_train"] = plot_k_vs_score_train
         answer["plot_k_vs_score_test"]  = plot_k_vs_score_test
@@ -166,17 +161,11 @@ class Section3:
     ]:
         """"""
         # Enter your code and fill the `answer` dictionary
-        X, y, Xtest, ytest = u.prepare_data()
         Xtrain, ytrain = nu.filter_out_7_9s(X, y)
         Xtest, ytest = nu.replace_7_9s(Xtest, ytest)
 
-        nu.scale(Xtrain)
-        nu.scale(Xtest)
-        nu.integerCheck_(ytrain)
-        nu.integerCheck_(ytest)
-
-        Xtrain = nu.scale_data(Xtrain)
-        Xtest = nu.scale_data(Xtest)
+        # Xtrain = nu.scale_data(Xtrain)
+        # Xtest = nu.scale_data(Xtest)
 
         answer = {}
 
@@ -196,7 +185,7 @@ class Section3:
         answer["max_Xtrain"] = np.max(Xtrain)
         answer["max_Xtest"] = np.max(Xtest)
 
-        return answer, X, y, Xtest, ytest
+        return answer, Xtrain, ytrain, Xtest, ytest
 
     # --------------------------------------------------------------------------
     """
@@ -219,12 +208,11 @@ class Section3:
 
         # Enter your code and fill the `answer` dictionary
 
-        X, y, Xtest, ytest = u.prepare_data()
-        Xtrain, ytrain = nu.filter_out_7_9s(X, y)
-        Xtest, ytest = nu.replace_7_9s(Xtest, ytest)
+        # Xtrain, ytrain = nu.filter_out_7_9s(X, y)
+        # Xtest, ytest = nu.replace_7_9s(Xtest, ytest)
 
-        Xtrain = nu.scale_data(Xtrain)
-        Xtest = nu.scale_data(Xtest)
+        # Xtrain = nu.scale_data(Xtrain)
+        # Xtest = nu.scale_data(Xtest)
 
         clf = svm.SVC(kernel="linear",random_state=self.seed)
         cv = StratifiedKFold(n_splits=5)
@@ -238,23 +226,23 @@ class Section3:
         # Perform cross-validation with stratified k-fold
         metrics = {}
         for key, value in scorers.items():
-            metrics[key]=cross_validate(clf, Xtrain, ytrain, cv=cv,scoring=value)['test_score']
+            metrics[key]=cross_validate(clf, X, y, cv=cv,scoring=value)['test_score']
         
 
         scores = nu.scores_part3(metrics)
 
-        clf.fit(Xtrain, ytrain)
+        clf.fit(X, y)
 
-        ytrain_pred = clf.predict(Xtrain)
+        ytrain_pred = clf.predict(X)
         ytest_pred = clf.predict(Xtest)
 
         answer = {}
         answer["scores"] = scores
         answer["cv"] = cv
         answer["clf"] = clf
-        answer["is_precision_higher_than_recall"] = True
+        answer["is_precision_higher_than_recall"] = True if scores["mean_precision"]>scores["mean_recall"] else False
         answer["explain_is_precision_higher_than_recall"] = "Precision being higher than recall typically occurs when the model has a higher tendency to make fewer false positive predictions while potentially missing some true positive predictions. This scenario is commonly encountered in situations where the cost of false positives is higher than false negatives, or when the dataset is imbalanced."
-        answer["confusion_matrix_train"] = confusion_matrix(ytrain,ytrain_pred)
+        answer["confusion_matrix_train"] = confusion_matrix(y,ytrain_pred)
         answer["confusion_matrix_test"] = confusion_matrix(ytest,ytest_pred)
 
 
@@ -296,12 +284,12 @@ class Section3:
         ytest: NDArray[np.int32],
     ) -> dict[str, Any]:
         """"""
-        X, y, Xtest, ytest = u.prepare_data()
-        Xtrain, ytrain = nu.filter_out_7_9s(X, y)
-        Xtest, ytest = nu.replace_7_9s(Xtest, ytest)
 
-        Xtrain = nu.scale_data(Xtrain)
-        Xtest = nu.scale_data(Xtest)
+        # Xtrain, ytrain = nu.filter_out_7_9s(X, y)
+        # Xtest, ytest = nu.replace_7_9s(Xtest, ytest)
+
+        Xtrain = X.copy()
+        ytrain = y.copy()
 
         # Compute class weights
         class_labels = np.unique(ytrain)
@@ -342,7 +330,7 @@ class Section3:
         answer["cv"] = cv
         answer["clf"] = clf
         answer["class_weights"] = class_weight_dict
-        answer["is_precision_higher_than_recall"] = True
+        answer["is_precision_higher_than_recall"] = True if scores["mean_precision"]>scores["mean_recall"] else False
         answer["explain_is_precision_higher_than_recall"] = "Precision being higher than recall typically occurs when the model has a higher tendency to make fewer false positive predictions while potentially missing some true positive predictions. This scenario is commonly encountered in situations where the cost of false positives is higher than false negatives, or when the dataset is imbalanced."
         answer["confusion_matrix_train"] = confusion_matrix(ytrain,ytrain_pred)
         answer["confusion_matrix_test"] = confusion_matrix(ytest,ytest_pred)
